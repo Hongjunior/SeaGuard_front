@@ -313,16 +313,33 @@ class _Cleaning2State extends State<Cleaning2> {
                     height: 46,
                     child: ElevatedButton(
                       onPressed: () {
+                        // 타임스탬프가 비어 있는지 체크
+                        if (coast_name.isEmpty ||
+                            coast_length.isEmpty ||
+                            timestamp.isEmpty ||
+                            latitude.isEmpty ||
+                            longitude.isEmpty) {
+                          // 경고 메시지 표시
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('모든 필드를 입력해주세요.'),
+                              backgroundColor: Color(0xFF407BFF),
+                            ),
+                          );
+                          return; // 함수 종료
+                        }
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => Cleaning3(
                               formData: {
                                 'coast_name': coast_name,
-                                'coast_length': coast_length,
+                                'coast_length':
+                                    double.tryParse(coast_length) ?? 0.0,
                                 'timestamp': timestamp,
-                                'latitude': latitude,
-                                'longitude': longitude,
+                                'latitude': double.tryParse(latitude) ?? 0.0,
+                                'longitude': double.tryParse(longitude) ?? 0.0,
                               },
                             ),
                           ),

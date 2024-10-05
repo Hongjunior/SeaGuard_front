@@ -6,45 +6,45 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'investigation3.dart';
 
 class Investigation2 extends StatefulWidget {
-  const Investigation2({super.key, required this.formData}); // formData 추가
+  const Investigation2({super.key, required this.formData});
 
-  final Map formData; // formData를 저장할 변수 추가
+  final Map formData;
 
   @override
   State<Investigation2> createState() => _Investigation2State();
 }
 
 class _Investigation2State extends State<Investigation2> {
-  int currentStep = 2; // 현재 단계를 저장하는 변수
+  int currentStep = 2;
   String? photo;
   String? estimated_litter_amount;
-  int? main_litter_type;
+  String? main_litter_type;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false, // 기본 뒤로 가기 아이콘을 제거
-        backgroundColor: Colors.transparent, // 배경색 투명 설정
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
         title: SizedBox(
           child: Stack(
-            alignment: Alignment.center, // Stack 내의 요소들을 중앙에 정렬
+            alignment: Alignment.center,
             children: [
               Align(
-                alignment: Alignment.centerLeft, // 왼쪽에 아이콘 정렬
+                alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios,
-                    size: 24, // 아이콘 크기 설정
+                    size: 24,
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop(); // 이전 화면으로 돌아가기
+                    Navigator.of(context).pop();
                   },
                 ),
               ),
               const Align(
-                alignment: Alignment.center, // 텍스트 중앙 정렬
+                alignment: Alignment.center,
                 child: Text(
                   '조사 모드',
                   style: TextStyle(
@@ -59,11 +59,10 @@ class _Investigation2State extends State<Investigation2> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30), // 좌우 여백 추가
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 동그라미 1, 2, 3과 선 연결 + 텍스트 추가
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -74,11 +73,11 @@ class _Investigation2State extends State<Investigation2> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: _buildLine(currentStep > 1), // 1-2 선
+                          child: _buildLine(currentStep > 1),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: _buildLine(currentStep > 2), // 2-3 선
+                          child: _buildLine(currentStep > 2),
                         ),
                       ],
                     ),
@@ -125,8 +124,6 @@ class _Investigation2State extends State<Investigation2> {
               ),
               InkWell(
                 onTap: () {
-                  // 여기에 카메라를 여는 기능을 구현하면 됩니다.
-                  // 예: 촬영 후 photo 경로에 저장
                   setState(() {
                     photo = "촬영한_사진의_경로"; // 예시로 사진 경로 설정
                   });
@@ -145,7 +142,7 @@ class _Investigation2State extends State<Investigation2> {
                       SvgPicture.asset(
                         'assets/icons/camera.svg',
                       ),
-                      const SizedBox(height: 5), // 아이콘과 텍스트 사이 간격
+                      const SizedBox(height: 5),
                       const Text(
                         '사진 촬영하기',
                         style: TextStyle(
@@ -188,7 +185,7 @@ class _Investigation2State extends State<Investigation2> {
                           estimated_litter_amount = value; // 입력한 값을 수거 예측량으로 저장
                         },
                         decoration: const InputDecoration(
-                          border: InputBorder.none, // 기본 테두리 제거
+                          border: InputBorder.none,
                           hintText: '0',
                           hintStyle: TextStyle(
                             fontSize: 18,
@@ -198,7 +195,7 @@ class _Investigation2State extends State<Investigation2> {
                         style: const TextStyle(
                           fontSize: 18,
                         ),
-                        keyboardType: TextInputType.number, // 숫자만 입력 가능하도록 설정
+                        keyboardType: TextInputType.number,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -223,15 +220,15 @@ class _Investigation2State extends State<Investigation2> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
-              _buildGarbageOption('폐어구류 (그물, 밧줄, 양식자재 등)', 1),
+              _buildGarbageOption('폐어구류 (그물, 밧줄, 양식자재 등)'),
               const SizedBox(height: 10),
-              _buildGarbageOption('부표류 (스티로폼, 인증, 플라스틱 등)', 2),
+              _buildGarbageOption('부표류 (스티로폼, 인증, 플라스틱 등)'),
               const SizedBox(height: 10),
-              _buildGarbageOption('생활 쓰레기류 (음료수병, 포장비닐, 캔 등)', 3),
+              _buildGarbageOption('생활 쓰레기류 (음료수병, 포장비닐, 캔 등)'),
               const SizedBox(height: 10),
-              _buildGarbageOption('대형 쓰레기류 (냉장고, 타이어 등)', 4),
+              _buildGarbageOption('대형 쓰레기류 (냉장고, 타이어 등)'),
               const SizedBox(height: 10),
-              _buildGarbageOption('초목류 (자연목, 인공목 등)', 5),
+              _buildGarbageOption('초목류 (자연목, 인공목 등)'),
 
               const SizedBox(height: 40),
 
@@ -245,16 +242,17 @@ class _Investigation2State extends State<Investigation2> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Investigation3(
-                                formData: {
-                                  ...widget.formData, // Investigation1에서 받은 데이터
-                                  'photo': photo, // 촬영한 사진
-                                  'estimated_litter_amount':
-                                      estimated_litter_amount, // 수거 예측량
-                                  'main_litter_type':
-                                      main_litter_type, // 선택된 주요 쓰레기
-                                },
-                              )),
+                        builder: (context) => Investigation3(
+                          formData: {
+                            ...widget.formData, // Investigation1에서 받은 데이터
+                            'photo': photo, // 촬영한 사진
+                            'estimated_litter_amount': double.tryParse(
+                                    estimated_litter_amount ?? '0') ??
+                                0.0, // 변환
+                            'main_litter_type': main_litter_type, // 선택된 주요 쓰레기
+                          },
+                        ),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -282,17 +280,17 @@ class _Investigation2State extends State<Investigation2> {
   }
 
   // 선택된 쓰레기 항목 표시
-  Widget _buildGarbageOption(String garbageType, int type) {
+  Widget _buildGarbageOption(String garbageType) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          main_litter_type = type; // 선택된 쓰레기 저장
+          main_litter_type = garbageType; // 선택된 쓰레기 저장
         });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: main_litter_type == type
+          color: main_litter_type == garbageType
               ? const Color(0xFF407BFF)
               : const Color(0xFFF6F9FF),
           borderRadius: BorderRadius.circular(10),
@@ -304,11 +302,17 @@ class _Investigation2State extends State<Investigation2> {
               garbageType,
               style: TextStyle(
                 fontSize: 16,
-                color: main_litter_type == type ? Colors.white : Colors.black,
+                fontWeight: FontWeight.w500,
+                color: main_litter_type == garbageType
+                    ? Colors.white
+                    : Colors.black,
               ),
             ),
-            if (main_litter_type == type) // 선택된 경우 체크 표시
-              const Icon(Icons.check, color: Colors.white),
+            if (main_litter_type == garbageType)
+              const Icon(
+                Icons.check,
+                color: Colors.white,
+              ),
           ],
         ),
       ),

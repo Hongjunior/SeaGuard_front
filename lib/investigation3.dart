@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'bottom_navigator.dart';
 import 'investigation4.dart';
-import 'api_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Investigation3 extends StatefulWidget {
   final Map<String, dynamic> formData; // 이전 페이지에서 넘겨받은 데이터
@@ -16,6 +18,52 @@ class Investigation3 extends StatefulWidget {
 
 class _Investigation3State extends State<Investigation3> {
   int currentStep = 3; // 현재 단계를 저장하는 변수
+
+  // saveData 함수를 추가
+  Future<void> saveData(
+      String investigator_name,
+      String investigation_serial_number,
+      String coast_name,
+      double coast_length,
+      String timestamp,
+      double latitude,
+      double longitude,
+      double estimated_litter_amount,
+      int main_litter_type) async {
+    final url = Uri.parse(
+        'https://ca91-211-50-45-46.ngrok-free.app/investigation/'); // 여기에 백엔드 URL 입력
+
+    // 전송할 데이터 생성
+    final data = {
+      'investigator_name': investigator_name,
+      'investigation_serial_number': investigation_serial_number,
+      'coast_name': coast_name,
+      'coast_length': coast_length,
+      'timestamp': timestamp,
+      'latitude': latitude,
+      'longitude': longitude,
+      'estimated_litter_amount': estimated_litter_amount,
+      'main_litter_type': main_litter_type,
+    };
+
+    try {
+      // POST 요청 보내기
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      // 응답 상태 코드 체크
+      if (response.statusCode == 200) {
+        print('데이터 전송 성공: ${response.body}');
+      } else {
+        print('데이터 전송 실패: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      print('예외 발생: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,20 +130,26 @@ class _Investigation3State extends State<Investigation3> {
             ),
             _buildHorizontalFieldDisplay(
               '해안 길이',
-              (widget.formData['coast_length'] == null ||
-                      widget.formData['coast_length'].isEmpty)
+              (widget.formData['coast_length'] == null)
                   ? '0 m'
                   : '${widget.formData['coast_length']} m',
             ),
             _buildHorizontalFieldDisplay(
-                '일시', widget.formData['timestamp'] ?? '선택 필요'),
+              '일시',
+              widget.formData['timestamp'] != null
+                  ? DateFormat('yyyy년 MM월 dd일 HH:mm')
+                      .format(DateTime.parse(widget.formData['timestamp']))
+                  : '선택 필요',
+            ),
             _buildHorizontalFieldDisplay(
               '위경도',
-              '${(widget.formData['latitude'] == null || widget.formData['latitude'].isEmpty) ? '0' : widget.formData['latitude']} , '
-                  '${(widget.formData['longitude'] == null || widget.formData['longitude'].isEmpty) ? '0' : widget.formData['longitude']}',
+              '${(widget.formData['latitude'] == null) ? '0' : widget.formData['latitude']} , '
+                  '${(widget.formData['longitude'] == null) ? '0' : widget.formData['longitude']}',
             ),
-            _buildHorizontalFieldDisplay('수거 예측량',
-                '${widget.formData['estimated_litter_amount'] ?? '0'} L'),
+            _buildHorizontalFieldDisplay(
+              '수거 예측량',
+              '${widget.formData['estimated_litter_amount'] ?? 0} L',
+            ),
             _buildHorizontalFieldDisplay('주요 쓰레기',
                 widget.formData['main_litter_type']?.toString() ?? '선택 필요'),
 
@@ -137,28 +191,42 @@ class _Investigation3State extends State<Investigation3> {
               height: 46,
               child: ElevatedButton(
                 onPressed: () async {
-                  // 필요한 데이터를 formData에서 가져옵니다.
-                  String coast_name = widget.formData['coast_name'] ?? '입력 필요';
-                  num coast_length = (widget.formData['coast_length'] != null)
-                      ? double.tryParse(widget.formData['coast_length']) ??
-                          0 // 문자열을 숫자로 변환
-                      : 0; // 기본값 설정
-                  String timestamp = widget.formData['timestamp'] ?? '선택 필요';
-                  num latitude =
-                      (widget.formData['latitude'] ?? 0) as num; // 숫자형으로 변환
-                  num longitude =
-                      (widget.formData['longitude'] ?? 0) as num; // 숫자형으로 변환
-                  num estimated_litter_amount =
-                      (widget.formData['estimated_litter_amount'] ?? 0)
-                          as num; // 숫자형으로 변환
-                  int main_litter_type = (widget.formData['main_litter_type'] ??
-                      1) as int; // 정수형으로 변환, 기본값 설정
+                  // formData에서 직접 데이터를 가져옵니다.
+                  String coast_name = widget.formData['coast_name'];
+                  double coast_length = widget.formData['coast_length'];
+                  String timestamp = widget.formData['timestamp'];
+                  double latitude = widget.formData['latitude'];
+                  double longitude = widget.formData['longitude'];
+                  double estimated_litter_amount =
+                      widget.formData['estimated_litter_amount'];
+
+                  // main_litter_type을 숫자로 매핑
+                  int main_litter_type;
+                  switch (widget.formData['main_litter_type']) {
+                    case 'Fishing Gear':
+                      main_litter_type = 1;
+                      break;
+                    case 'Buoys':
+                      main_litter_type = 2;
+                      break;
+                    case 'Household Waste':
+                      main_litter_type = 3;
+                      break;
+                    case 'Large Illegal Dumping':
+                      main_litter_type = 4;
+                      break;
+                    case 'Vegetation':
+                      main_litter_type = 5;
+                      break;
+                    default:
+                      main_litter_type = 1; // 기본값
+                  }
 
                   // saveData 함수를 호출하여 데이터를 저장합니다.
                   await saveData(
-                    coast_name,
+                    widget.formData['investigator_name'] ?? '조사자 이름 미제공',
                     widget.formData['investigation_serial_number'] ??
-                        'INV123456', // 조사 일련번호 추가
+                        'INV123456',
                     coast_name,
                     coast_length,
                     timestamp,

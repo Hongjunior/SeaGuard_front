@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'bottom_navigator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Cleaning4 extends StatefulWidget {
   final Map<String, dynamic> formData; // 이전 페이지에서 넘겨받은 데이터
@@ -16,6 +19,52 @@ class Cleaning4 extends StatefulWidget {
 class _Cleaning4State extends State<Cleaning4> {
   int currentStep = 3; // 현재 단계를 저장하는 변수
   bool _isImageVisible = false; // 이미지 표시 여부
+
+  // saveData 함수를 추가
+  Future<void> saveData(
+      String cleaner_name,
+      String cleanup_serial_number,
+      String coast_name,
+      double coast_length,
+      String timestamp,
+      double latitude,
+      double longitude,
+      double litter_bags_count,
+      int main_litter_type) async {
+    final url = Uri.parse(
+        'https://ca91-211-50-45-46.ngrok-free.app/cleanup/'); // 여기에 백엔드 URL 입력
+
+    // 전송할 데이터 생성
+    final data = {
+      'cleaner_name': cleaner_name,
+      'cleanup_serial_number': cleanup_serial_number,
+      'coast_name': coast_name,
+      'coast_length': coast_length,
+      'timestamp': timestamp,
+      'latitude': latitude,
+      'longitude': longitude,
+      'litter_bags_count': litter_bags_count,
+      'main_litter_type': main_litter_type,
+    };
+
+    try {
+      // POST 요청 보내기
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      // 응답 상태 코드 체크
+      if (response.statusCode == 200) {
+        print('데이터 전송 성공: ${response.body}');
+      } else {
+        print('데이터 전송 실패: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      print('예외 발생: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,22 +149,26 @@ class _Cleaning4State extends State<Cleaning4> {
             ),
             _buildHorizontalFieldDisplay(
               '해안 길이',
-              (widget.formData['coast_length'] == null ||
-                      widget.formData['coast_length'].isEmpty)
+              (widget.formData['coast_length'] == null)
                   ? '0 m'
                   : '${widget.formData['coast_length']} m',
             ),
             _buildHorizontalFieldDisplay(
-                '일시', widget.formData['timestamp'] ?? '선택 필요'),
+              '일시',
+              widget.formData['timestamp'] != null
+                  ? DateFormat('yyyy년 MM월 dd일 HH:mm')
+                      .format(DateTime.parse(widget.formData['timestamp']))
+                  : '선택 필요',
+            ),
             _buildHorizontalFieldDisplay(
               '위경도',
-              '${(widget.formData['latitude'] == null || widget.formData['latitude'].isEmpty) ? '0' : widget.formData['latitude']} , '
-                  '${(widget.formData['longitude'] == null || widget.formData['longitude'].isEmpty) ? '0' : widget.formData['longitude']}',
+              '${(widget.formData['latitude'] == null) ? '0' : widget.formData['latitude']} , '
+                  '${(widget.formData['longitude'] == null) ? '0' : widget.formData['longitude']}',
             ),
             _buildHorizontalFieldDisplay('청소 수거량',
-                '50L  ${widget.formData['calculated_litter_amount'] ?? '0'} 개'),
-            _buildHorizontalFieldDisplay(
-                '주요 쓰레기', widget.formData['main_litter_type'] ?? '선택 필요'),
+                '50L  ${widget.formData['litter_bags_count'] ?? '0'} 개'),
+            _buildHorizontalFieldDisplay('주요 쓰레기',
+                widget.formData['main_litter_type']?.toString() ?? '선택 필요'),
 
             // 집하 장소 이미지 표시
             Padding(
@@ -173,12 +226,58 @@ class _Cleaning4State extends State<Cleaning4> {
             ),
             const SizedBox(height: 40),
 
-            // 조사 완료 버튼
+            // 청소 버튼
             SizedBox(
               width: 395,
               height: 46,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  // formData에서 직접 데이터를 가져옵니다.
+                  String coast_name = widget.formData['coast_name'];
+                  double coast_length = widget.formData['coast_length'];
+                  String timestamp = widget.formData['timestamp'];
+                  double latitude = widget.formData['latitude'];
+                  double longitude = widget.formData['longitude'];
+                  double litter_bags_count =
+                      widget.formData['litter_bags_count'];
+
+                  // main_litter_type을 숫자로 매핑
+                  int main_litter_type;
+                  switch (widget.formData['main_litter_type']) {
+                    case 'Fishing Gear':
+                      main_litter_type = 1;
+                      break;
+                    case 'Buoys':
+                      main_litter_type = 2;
+                      break;
+                    case 'Household Waste':
+                      main_litter_type = 3;
+                      break;
+                    case 'Large Illegal Dumping':
+                      main_litter_type = 4;
+                      break;
+                    case 'Vegetation':
+                      main_litter_type = 5;
+                      break;
+                    default:
+                      main_litter_type = 1; // 기본값
+                  }
+
+                  // saveData 함수를 호출하여 데이터를 저장합니다.
+                  await saveData(
+                    widget.formData['cleaner_name'] ?? '조사자 이름 미제공',
+                    widget.formData['cleanup_serial_number'] ?? 'INV123456',
+                    coast_name,
+                    coast_length,
+                    timestamp,
+                    latitude,
+                    longitude,
+                    litter_bags_count,
+                    main_litter_type,
+                  );
+
+                  // 데이터 전송 후 페이지 이동
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF407BFF),
                   shape: RoundedRectangleBorder(
@@ -186,7 +285,7 @@ class _Cleaning4State extends State<Cleaning4> {
                   ),
                 ),
                 child: const Text(
-                  '해안 조사 완료',
+                  '해안 청소 완료',
                   style: TextStyle(
                       fontSize: 16,
                       color: Colors.white,

@@ -18,7 +18,7 @@ class _Cleaning3State extends State<Cleaning3> {
   int currentStep = 2; // 현재 단계를 저장하는 변수
   String? completion_photo_landscape;
   String? completion_photo_collection_site;
-  String? calculated_litter_amount;
+  String? litter_bags_count;
   String? main_litter_type;
 
   @override
@@ -298,8 +298,7 @@ class _Cleaning3State extends State<Cleaning3> {
                     Expanded(
                       child: TextField(
                         onChanged: (value) {
-                          calculated_litter_amount =
-                              value; // 입력한 값을 청소 수거량으로 저장
+                          litter_bags_count = value; // 입력한 값을 청소 수거량으로 저장
                         },
                         decoration: const InputDecoration(
                           border: InputBorder.none, // 기본 테두리 제거
@@ -364,13 +363,14 @@ class _Cleaning3State extends State<Cleaning3> {
                       MaterialPageRoute(
                           builder: (context) => Cleaning4(
                                 formData: {
-                                  ...widget.formData, // Investigation1에서 받은 데이터
+                                  ...widget.formData, // Cleaning2에서 받은 데이터
                                   'completion_photo_landscape':
                                       completion_photo_landscape, // 촬영한 해안 사진
                                   'completion_photo_collection_site':
                                       completion_photo_collection_site, // 촬영한 집하 장소 사진
-                                  'calculated_litter_amount':
-                                      calculated_litter_amount, // 청소 수거량
+                                  'litter_bags_count': double.tryParse(
+                                          litter_bags_count ?? '0') ??
+                                      0.0, // 변환
                                   'main_litter_type':
                                       main_litter_type, // 선택된 주요 쓰레기
                                 },
