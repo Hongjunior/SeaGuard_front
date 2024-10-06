@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../filter.dart';
-import 'chart/graph1.dart';
-import 'chart/graph2.dart';
-import 'chart/graph3.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:math'; // 랜덤 기능을 위한 import
+import 'admin_navigator.dart';
 
 class Admin extends StatefulWidget {
   const Admin({super.key});
@@ -12,8 +11,25 @@ class Admin extends StatefulWidget {
 }
 
 class AdminState extends State<Admin> {
-  String selectedDistrict = '필터'; // 기본 텍스트
-  String? selectedPeriod; // 기간 선택을 위한 변수 추가
+  bool isSearchActive = false; // 검색창 활성화 여부
+  TextEditingController searchController = TextEditingController();
+
+  final List<String> names = [
+    '김철수',
+    '이영희',
+    '박민수',
+    '정하나',
+    '최지훈',
+    '이수정',
+    '강태우',
+    '박상희',
+  ]; // 예시 한글 이름 목록
+
+  final List<String> roles = [
+    '청소',
+    '조사',
+    '운반',
+  ]; // 역할 목록
 
   @override
   Widget build(BuildContext context) {
@@ -23,175 +39,178 @@ class AdminState extends State<Admin> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 16.0),
-          child: Text(
-            '회원 관리',
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.black,
-              fontWeight: FontWeight.w700,
+        title: Row(
+          children: [
+            const Text(
+              '회원 관리',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const Spacer(), // 회원 관리 글자와 검색창 사이의 간격 유지
+            if (isSearchActive)
+              SizedBox(
+                width: 280, // 검색창의 너비를 고정
+                height: 50, // 검색창의 높이를 고정
+                child: TextField(
+                  controller: searchController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: "이름/아이디 검색",
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        setState(() {
+                          searchController.clear();
+                          isSearchActive = false; // 검색창 닫기
+                        });
+                      },
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF6F9FF),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        actions: [
+          if (!isSearchActive)
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  isSearchActive = true; // 검색창 활성화
+                });
+              },
+              icon: SvgPicture.asset(
+                'assets/icons/search2.svg',
+              ),
+            ),
+          const SizedBox(width: 10), // 두 아이콘 사이 간격
+          IconButton(
+            onPressed: () {
+              // 사용자 추가 기능을 추가할 곳
+            },
+            icon: SvgPicture.asset(
+              'assets/icons/user_plus.svg',
             ),
           ),
-        ),
+        ],
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Container(
-                    width: 120,
-                    height: 40, // 고정 세로 크기
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: const Color(0XFFEBEBEB),
-                        width: 1,
+        child: ListView.builder(
+          itemCount: 21, // 첫 번째 항목 + 랜덤 항목 20개
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              // 첫 번째 항목: 제목
+              return const Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: Text(
+                        '이름', // 왼쪽: 이름
+                        style: TextStyle(
+                          fontSize: 16, // 글씨 크기 16
+                          fontWeight: FontWeight.w600, // 폰트 웨이트 600
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                    child: TextButton(
-                      onPressed: () {
-                        showGeneralDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          barrierLabel: '필터 설정',
-                          pageBuilder: (context, anim1, anim2) {
-                            return Center(
-                              child: SizedBox(
-                                width: MediaQuery.of(context)
-                                    .size
-                                    .width, // 가로 100%
-                                height: 410,
-                                child: FilterWidget(
-                                  onDistrictSelected: (district) {
-                                    setState(() {
-                                      selectedDistrict =
-                                          district; // 선택된 지역 업데이트
-                                    });
-                                  },
-                                  onPeriodSelected: (period) {
-                                    setState(() {
-                                      // 선택된 기간 업데이트
-                                      selectedPeriod = period;
-                                    });
-                                  },
-                                ), // 필터 위젯 호출
-                              ),
-                            );
-                          },
-                          transitionBuilder: (context, anim1, anim2, child) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                      begin: const Offset(0, -1),
-                                      end: Offset.zero)
-                                  .animate(anim1),
-                              child: child,
-                            );
-                          },
-                          transitionDuration: const Duration(milliseconds: 300),
-                        );
-                      },
-                      child: Center(
-                        child: Text(
-                          selectedDistrict, // 선택된 지역 텍스트 표시
+                    Text(
+                      '아이디', // 가운데: 아이디
+                      style: TextStyle(
+                        fontSize: 16, // 글씨 크기 16
+                        fontWeight: FontWeight.w600, // 폰트 웨이트 600
+                        color: Colors.black,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 20),
+                      child: Text(
+                        '역할', // 오른쪽: 역할
+                        style: TextStyle(
+                          fontSize: 16, // 글씨 크기 16
+                          fontWeight: FontWeight.w600, // 폰트 웨이트 600
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              // 랜덤 항목
+              final random = Random();
+              final name = names[random.nextInt(names.length)];
+              final id = 'user${index - 1}'; // 예시 영어 아이디
+              final role = roles[random.nextInt(roles.length)];
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Align(
+                  child: Container(
+                    width: 370, // 가로 350
+                    height: 50, // 세로 40
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF6F9FF), // 배경색 F6F9FF
+                      borderRadius: BorderRadius.circular(10), // 둥글기 10
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.grey, // 그림자 색상
+                          blurRadius: 4, // 흐림 정도
+                          offset: Offset(0, 1), // 그림자의 위치
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            name, // 랜덤 이름
+                            style: const TextStyle(
+                              fontSize: 12, // 글씨 크기 12
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          id, // 랜덤 아이디
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 12, // 글씨 크기 12
                             color: Colors.black,
                           ),
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Text(
+                            role, // 랜덤 역할
+                            style: const TextStyle(
+                              fontSize: 12, // 글씨 크기 12
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  if (selectedPeriod != null) // 선택된 기간이 있을 경우에만 표시
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedPeriod = null; // 기간을 선택 해제
-                        });
-                      },
-                      child: Container(
-                        height: 40, // 고정 세로 크기
-                        padding: const EdgeInsets.symmetric(horizontal: 23),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: const Color(0XFFEBEBEB),
-                            width: 1,
-                          ),
-                          color: Colors.white,
-                        ),
-                        child: Center(
-                          child: Text(
-                            selectedPeriod!, // 선택된 기간 텍스트 표시
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              '실제 수거량 비교',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            const Text(
-              '예측수거량 대비',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: 395,
-              height: 250,
-              child: const Graph1(),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              '쓰레기 유형별 비율',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: 395,
-              height: 250,
-              child: const Graph2(),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              '총 수거량 변화추세',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: 395,
-              height: 250,
-              child: const Graph3(),
-            ),
-            const SizedBox(height: 30),
-          ],
+                ),
+              );
+            }
+          },
         ),
       ),
+      bottomNavigationBar: const AdminNavigator(currentIndex: 2),
     );
   }
 }

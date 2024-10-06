@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'login.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // 추가된 부분
+import 'dart:async'; // 추가된 부분
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 초기화
   runApp(const SeaGuardApp());
 }
 
@@ -14,6 +17,7 @@ class SeaGuardApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, // 디버그 마크 제거
       title: '바다 환경 지킴이',
       theme: ThemeData(
         primarySwatch: createMaterialColor(const Color(0xFF407BFF)), // 기본 색상 변경
@@ -39,7 +43,46 @@ class SeaGuardApp extends StatelessWidget {
         Locale('ko', ''), // 한국어 지원
         Locale('en', ''), // 영어 지원
       ],
-      home: const HomeScreen(),
+      home: const SplashScreen(), // 스플래시 화면으로 이동
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Timer(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const LoginScreen()), // 로그인 화면으로 이동
+      );
+    });
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF407BFF), // 배경색
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/images/logo.svg', // 로고 추가
+              width: 100, // 로고 크기 조정
+              height: 100,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              '바다를 보호합시다!', // 스플래시 텍스트
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white, // 글씨 색상 흰색
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -54,25 +97,9 @@ class HomeScreen extends StatelessWidget {
         title: const Text('바다환경지킴이'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '바다를 보호합시다!',
-              style: TextStyle(fontSize: 24),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                // 로그인 화면으로 이동
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              },
-              child: const Text('로그인'),
-            ),
-          ],
+        child: const Text(
+          '바다환경지킴이',
+          style: TextStyle(fontSize: 24),
         ),
       ),
     );

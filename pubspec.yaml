@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.6.0-322.0.dev
+  sdk: '>=3.4.3 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -36,6 +36,7 @@ dependencies:
   intl: ^0.19.0
   http: ^0.13.3
   fl_chart: ^0.63.0
+  google_maps_flutter: ^2.9.0  # 구글 맵 패키지
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -50,7 +51,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -64,6 +65,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/logo.svg
     - assets/images/cleaning.svg
     - assets/images/goodboy.svg
     - assets/icons/investigation.svg
@@ -83,6 +85,10 @@ flutter:
     - assets/icons/inbox.svg
     - assets/icons/change.svg
     - assets/icons/filter.svg
+    - assets/icons/wifi.svg
+    - assets/icons/bar.svg
+    - assets/icons/search2.svg
+    - assets/icons/user_plus.svg
     
   fonts:
     - family: Paperlogy

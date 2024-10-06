@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'admin_navigator.dart';
 import '../filter.dart';
 import 'chart/graph1.dart';
 import 'chart/graph2.dart';
@@ -192,6 +193,7 @@ class StatisticsState extends State<Statistics> {
           ],
         ),
       ),
+      bottomNavigationBar: const AdminNavigator(currentIndex: 0),
     );
   }
 }
